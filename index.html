@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>みんなの勉強掲示板</title>
+  <style>
+    body {
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic Pro", Meiryo, sans-serif;
+      background-color: #ffffff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 1em 1.5em;
+      width: 100%;
+      max-width: 700px;
+      box-sizing: border-box;
+      position: relative;
+      text-align: center;
+      user-select: none;
+    }
+    .settings-button {
+      position: absolute;
+      right: 1em;
+      top: 1em;
+      font-size: 1.6em;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      user-select: none;
+    }
+    main {
+      padding: 1em 1.5em;
+      width: 100%;
+      max-width: 700px;
+      box-sizing: border-box;
+      flex-grow: 1;
+    }
+    .goal-box {
+      background-color: #e8f5e9;
+      border: 1.5px solid #a5d6a7;
+      border-radius: 8px;
+      padding: 1em 1.2em;
+      margin: 1em 0;
+      font-size: 1rem;
+      line-height: 1.4;
+      user-select: none;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .post {
+      border: 1.5px solid #a5d6a7;
+      border-radius: 12px;
+      padding: 1em;
+      margin-bottom: 1.2em;
+      background-color: #f9fff9;
+      box-shadow: 0 1px 5px rgb(165 214 167 / 0.3);
+      user-select: text;
+    }
+    .post-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #2e7d32;
+      margin-bottom: 0.3em;
+      word-break: break-word;
+    }
+    .post-sub {
+      font-size: 0.9em;
+      color: #4caf50;
+      margin-bottom: 0.5em;
+      font-weight: 600;
+    }
+    .post-body {
+      margin: 0.5em 0 0.7em 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .post-image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-top: 0.5em;
+      user-select: none;
+    }
+    .post-replies {
+      margin-top: 0.8em;
+      padding-left: 1em;
+      border-left: 4px solid #4caf50;
+    }
+    .reply {
+      font-size: 0.9em;
+      margin-top: 0.4em;
+      color: #2e7d32;
+      word-break: break-word;
+    }
+    .reply-buttons {
+      margin-left: 1em;
+      display: inline-block;
+    }
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 0.7em;
+    }
+    button {
+      padding: 0.45em 1.2em;
+      border: none;
+      border-radius: 6px;
+      background-color: #4caf50;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+    button:hover, button:focus {
+      background-color: #388e3c;
+      outline: none;
+    }
+    button:disabled {
+      background-color: #a5d6a7;
+      cursor: default;
+    }
+    #new-post {
+      margin-bottom: 2em;
+    }
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 0.55em;
+      margin-bottom: 0.7em;
+      border: 1.5px solid #a5d6a7;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+      resize: vertical;
+    }
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #388e3c;
+      outline: none;
+    }
+    #login-screen {
+      text-align: center;
+      margin-top: 7em;
+      width: 100%;
+      max-width: 400px;
+    }
+    #login-screen input[type="text"] {
+      font-size: 1.1rem;
+      padding: 0.7em;
+      margin-bottom: 1em;
+    }
+    /* サイドメニュー */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 260px;
+      height: 100vh;
+      background: #f9fff9;
+      border-left: 3px solid #4caf50;
+      box-shadow: -3px 0 9px rgba(0, 0, 0, 0.22);
+      padding: 1.2em 1.5em;
+      box-sizing: border-box;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+      z-index: 1200;
+      user-select: none;
+    }
+    .side-menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .side-menu li {
+      margin-bottom: 1.2em;
+    }
+    .side-menu button {
+      width: 100%;
+      padding: 0.85em;
+      background-color: #4caf50;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .side-menu button:hover,
+    .side-menu button:focus {
+      background-color: #388e3c;
+      outline: none;
+    }
+    .side-menu.show {
+      transform: translateX(0);
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1100;
+      user-select: none;
+    }
+    #overlay.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- サイドメニューとオーバーレイ -->
+  <div id="side-menu" class="side-menu" aria-hidden="true" role="menu" aria-label="設定メニュー">
+    <ul>
+      <li><button id="toggle-goal-btn" onclick="toggleGoal()">目標非表示</button></li>
+      <li><button onclick="alert('現在準備中です。')">運営への質問、リクエスト</button></li>
+      <li><button onclick="alert('現在準備中です。')">設定</button></li>
+    </ul>
+  </div>
+  <div id="overlay" class="hidden" onclick="closeSideMenu()" aria-hidden="true"></div>
+
+  <div id="login-screen">
+    <h2>ログインしてください</h2>
+    <input type="text" id="username" placeholder="ユーザー名を入力" aria-label="ユーザー名入力欄" />
+    <button onclick="login()">ログイン</button>
+  </div>
+
+  <div id="main-content" class="hidden" role="main" aria-live="polite">
+    <header>
+      <h1>📘 みんなの勉強掲示板</h1>
+      <button class="settings-button" onclick="toggleSideMenu()" aria-label="設定メニューを開く">⚙️</button>
+    </header>
+
+    <main>
+      <section id="goal-box" class="goal-box" aria-live="polite" aria-atomic="true">
+        <p id="welcome-message"></p>
+        <p>このwebアプリは学校の学力を上げるため、助け合い、教え合う掲示板です。</p>
+        <p>みんなが共有していただくとありがたいです。</p>
+      </section>
+
+      <section id="new-post">
+        <h2>問題を投稿する</h2>
+        <input type="text" id="title" placeholder="タイトル" aria-label="投稿タイトル" />
+        <select id="subject" aria-label="教科を選択">
+          <option value="">教科を選択</option>
+          <option value="国語">国語</option>
+          <option value="数学">数学</option>
+          <option value="英語">英語</option>
+          <option value="理科">理科</option>
+          <option value="社会">社会</option>
+        </select>
+        <textarea id="content" rows="4" placeholder="問題の内容や解説など" aria-label="投稿内容"></textarea>
+        <input type="file" id="image" accept="image/*" aria-label="画像を添付" />
+        <button onclick="addPost()">投稿する</button>
+      </section>
+
+      <section id="posts" aria-live="polite" aria-atomic="false">
+        <h2>最新の投稿</h2>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let currentUser = "";
+    const posts = [];
+    const goodHistory = new Map();
+
+    // ログイン処理
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      if (username) {
+        currentUser = username;
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("main-content").classList.remove("hidden");
+        document.getElementById("welcome-message").textContent = `こんにちは！${currentUser}さん！`;
+        renderPosts();
+      } else {
+        alert("ユーザー名を入力してください");
+      }
+    }
+
+    // 目標表示・非表示トグル
+    function toggleGoal() {
+      const box = document.getElementById("goal-box");
+      const btn = document.getElementById("toggle-goal-btn");
+      if (box.classList.contains("hidden")) {
+        box.classList.remove("hidden");
+        btn.textContent = "目標非表示";
+      } else {
+        box.classList.add("hidden");
+        btn.textContent = "目標表示";
+      }
+      closeSideMenu();
+    }
+
+    // サイドメニュー表示切替
+    function toggleSideMenu() {
+      const menu = document.getElementById("side-menu");
+      const overlay = document.getElementById("overlay");
+      if (menu.classList.contains("show")) {
+        menu.classList.remove("show");
+        overlay.classList.add("hidden");
+        menu.setAttribute("aria-hidden", "true");
+        overlay.setAttribute("aria-hidden", "true");
+      } else {
+        menu.classList.add("show");
+        overlay.classList.remove("hidden");
+        menu.setAttribute("aria-hidden", "false");
+        overlay.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    // サイドメニュー閉じる
+    function closeSideMenu() {
+      const menu = document.getElementById("side-menu");
+      const overlay = document.getElementById("overlay");
+      menu.classList.remove("show");
+      overlay.classList.add("hidden");
+      menu.setAttribute("aria-hidden", "true");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+
+    // 投稿を追加
+    function addPost() {
+      const title = document.getElementById("title").value.trim();
+      const subject = document.getElementById("subject").value;
+      const content = document.getElementById("content").value.trim();
+      const imageInput = document.getElementById("image");
+      const imageFile = imageInput.files[0];
+
+      if (!title || !subject || !content) {
+        alert("タイトル・教科・内容をすべて入力してください");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const post = {
+          id: Date.now(),
+          title,
+          subject,
+          content,
+          image: imageFile ? e.target.result : null,
+          good: 0,
+          replies: [],
+        };
+        posts.unshift(post);
+        document.getElementById("title").value = "";
+        document.getElementById("subject").value = "";
+        document.getElementById("content").value = "";
+        document.getElementById("image").value = "";
+        renderPosts();
+      };
+
+      if (imageFile) {
+        reader.readAsDataURL(imageFile);
+      } else {
+        reader.onload({ target: { result: null } });
+      }
+    }
+
+    // 投稿のグッドボタン切替（1人1回＋キャンセル可能）
+    function toggleGood(postId) {
+      const post = posts.find((p) => p.id === postId);
+      const key = `${currentUser}-post-${postId}`;
+
+      if (goodHistory.has(key)) {
+        post.good--;
+        goodHistory.delete(key);
+      } else {
+        post.good++;
+        goodHistory.set(key, true);
+      }
+      renderPosts();
+    }
+
+    // 投稿に返信を追加
+    function replyToPost(postId) {
+      const content = prompt("返信内容を入力してください:");
+      if (content && content.trim()) {
+        const post = posts.find((p) => p.id === postId);
+        post.replies.push({ user: currentUser, content: content.trim(), good: 0 });
+        renderPosts();
+      }
+    }
+
+    // 返信のグッドボタン切替
+    function toggleReplyGood(postId, replyIndex) {
+      const key = `${currentUser}-reply-${postId}-${replyIndex}`;
+      const post = posts.find((p) => p.id === postId);
+      const reply = post.replies[replyIndex];
+
+      if (goodHistory.has(key)) {
+        reply.good--;
+        goodHistory.delete(key);
+      } else {
+        reply.good++;
+        goodHistory.set(key, true);
+      }
+      renderPosts();
+    }
+
+    // 投稿をレンダリング（表示）
+    function renderPosts() {
+      const postsDiv = document.getElementById("posts");
+      postsDiv.innerHTML = '<h2>最新の投稿</h2>';
+      posts.forEach((post) => {
+        const div = document.createElement("div");
+        div.className = "post";
+
+        let repliesHTML = "";
+        if (post.replies.length > 0) {
+          repliesHTML =
+            '<div class="post-replies">' +
+            post.replies
+              .map(
+                (r, i) => `
+            <div class="reply">
+              💬 <strong>${r.user}</strong>: ${escapeHTML(r.content)}
+              <span class="reply-buttons">
+                <button onclick="toggleReplyGood(${post.id}, ${i})">👍 ${r.good}</button>
+              </span>
+            </div>`
+              )
+              .join("") +
+            "</div>";
+        }
+        div.innerHTML = `
+          <div class="post-title">${escapeHTML(post.title)}</div>
+          <div class="post-sub">教科: ${escapeHTML(post.subject)}</div>
+          <div class="post-body">${escapeHTML(post.content)}</div>
+          ${post.image ? `<img src="${post.image}" class="post-image" alt="投稿画像">` : ""}
+          <div class="buttons">
+            <button onclick="toggleGood(${post.id})">👍 グッド (${post.good})</button>
+            <button onclick="replyToPost(${post.id})">💬 返信</button>
+          </div>
+          ${repliesHTML}
+        `;
+        postsDiv.appendChild(div);
+      });
+    }
+
+    // XSS防止のため簡単なエスケープ関数
+    function escapeHTML(text) {
+      if (!text) return "";
+      return text.replace(/[&<>"']/g, function (m) {
+        switch (m) {
+          case "&":
+            return "&amp;";
+          case "<":
+            return "&lt;";
+          case ">":
+            return "&gt;";
+          case '"':
+            return "&quot;";
+          case "'":
+            return "&#39;";
+          default:
+            return m;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
