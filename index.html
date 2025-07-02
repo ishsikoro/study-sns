@@ -1,484 +1,814 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>みんなの勉強掲示板</title>
-  <style>
-    body {
-      font-family: "Yu Gothic", "Hiragino Kaku Gothic Pro", Meiryo, sans-serif;
-      background-color: #ffffff;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    header {
-      background-color: #4caf50;
-      color: white;
-      padding: 1em 1.5em;
-      width: 100%;
-      max-width: 700px;
-      box-sizing: border-box;
-      position: relative;
-      text-align: center;
-      user-select: none;
-    }
-    .settings-button {
-      position: absolute;
-      right: 1em;
-      top: 1em;
-      font-size: 1.6em;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      line-height: 1;
-      padding: 0;
-      user-select: none;
-    }
-    main {
-      padding: 1em 1.5em;
-      width: 100%;
-      max-width: 700px;
-      box-sizing: border-box;
-      flex-grow: 1;
-    }
-    .goal-box {
-      background-color: #e8f5e9;
-      border: 1.5px solid #a5d6a7;
-      border-radius: 8px;
-      padding: 1em 1.2em;
-      margin: 1em 0;
-      font-size: 1rem;
-      line-height: 1.4;
-      user-select: none;
-    }
-    .hidden {
-      display: none !important;
-    }
-    .post {
-      border: 1.5px solid #a5d6a7;
-      border-radius: 12px;
-      padding: 1em;
-      margin-bottom: 1.2em;
-      background-color: #f9fff9;
-      box-shadow: 0 1px 5px rgb(165 214 167 / 0.3);
-      user-select: text;
-    }
-    .post-title {
-      font-size: 1.3em;
-      font-weight: 700;
-      color: #2e7d32;
-      margin-bottom: 0.3em;
-      word-break: break-word;
-    }
-    .post-sub {
-      font-size: 0.9em;
-      color: #4caf50;
-      margin-bottom: 0.5em;
-      font-weight: 600;
-    }
-    .post-body {
-      margin: 0.5em 0 0.7em 0;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    .post-image {
-      max-width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-      border-radius: 8px;
-      margin-top: 0.5em;
-      user-select: none;
-    }
-    .post-replies {
-      margin-top: 0.8em;
-      padding-left: 1em;
-      border-left: 4px solid #4caf50;
-    }
-    .reply {
-      font-size: 0.9em;
-      margin-top: 0.4em;
-      color: #2e7d32;
-      word-break: break-word;
-    }
-    .reply-buttons {
-      margin-left: 1em;
-      display: inline-block;
-    }
-    .buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 0.7em;
-    }
-    button {
-      padding: 0.45em 1.2em;
-      border: none;
-      border-radius: 6px;
-      background-color: #4caf50;
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s ease;
-    }
-    button:hover, button:focus {
-      background-color: #388e3c;
-      outline: none;
-    }
-    button:disabled {
-      background-color: #a5d6a7;
-      cursor: default;
-    }
-    #new-post {
-      margin-bottom: 2em;
-    }
-    input[type="text"],
-    textarea,
-    select {
-      width: 100%;
-      padding: 0.55em;
-      margin-bottom: 0.7em;
-      border: 1.5px solid #a5d6a7;
-      border-radius: 6px;
-      font-size: 1rem;
-      box-sizing: border-box;
-      transition: border-color 0.2s ease;
-      resize: vertical;
-    }
-    input[type="text"]:focus,
-    textarea:focus,
-    select:focus {
-      border-color: #388e3c;
-      outline: none;
-    }
-    #login-screen {
-      text-align: center;
-      margin-top: 7em;
-      width: 100%;
-      max-width: 400px;
-    }
-    #login-screen input[type="text"] {
-      font-size: 1.1rem;
-      padding: 0.7em;
-      margin-bottom: 1em;
-    }
-    /* サイドメニュー */
-    .side-menu {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 260px;
-      height: 100vh;
-      background: #f9fff9;
-      border-left: 3px solid #4caf50;
-      box-shadow: -3px 0 9px rgba(0, 0, 0, 0.22);
-      padding: 1.2em 1.5em;
-      box-sizing: border-box;
-      transform: translateX(100%);
-      transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
-      z-index: 1200;
-      user-select: none;
-    }
-    .side-menu ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .side-menu li {
-      margin-bottom: 1.2em;
-    }
-    .side-menu button {
-      width: 100%;
-      padding: 0.85em;
-      background-color: #4caf50;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-    .side-menu button:hover,
-    .side-menu button:focus {
-      background-color: #388e3c;
-      outline: none;
-    }
-    .side-menu.show {
-      transform: translateX(0);
-    }
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.3);
-      z-index: 1100;
-      user-select: none;
-    }
-    #overlay.hidden {
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>学力アップ掲示板アプリ（全部入り）</title>
+<style>
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0fff4;
+    color: #2a4d14;
+    margin: 0;
+    padding: 0;
+  }
+
+  header {
+    background: #4caf50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.6rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  #login-container,
+  #app-container {
+    max-width: 700px;
+    margin: 1rem auto;
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0 12px 0;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 1.8rem;
+    margin: 6px 6px 6px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  button:hover:not(:disabled) {
+    background: #388e3c;
+  }
+
+  button:disabled {
+    background: #a5d6a7;
+    cursor: not-allowed;
+  }
+
+  #login-message,
+  #post-message,
+  #reply-message,
+  #search-message {
+    color: red;
+    margin-top: 0.5rem;
+  }
+
+  #welcome-msg {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+
+  #gear {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #4caf50;
+    user-select: none;
+    z-index: 2000;
+  }
+
+  #side-panel {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 320px;
+    height: 100vh;
+    background: #e8f5e9;
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    z-index: 1500;
+  }
+
+  #side-panel.open {
+    right: 0;
+  }
+
+  #side-panel h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #4caf50;
+    padding-bottom: 0.5rem;
+    color: #2a4d14;
+  }
+
+  #side-panel button {
+    width: 100%;
+    margin: 0.7rem 0;
+    background: #4caf50;
+  }
+
+  #logout-btn {
+    background: #c62828 !important;
+  }
+
+  #goal-text {
+    background: #d0f0c0;
+    border-radius: 4px;
+    padding: 0.7rem;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
+  }
+
+  #post-form,
+  #reply-form,
+  #search-form {
+    margin-bottom: 1rem;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .post,
+  .reply {
+    border-bottom: 1px solid #ddd;
+    padding: 0.8rem 0;
+  }
+
+  .post .content,
+  .reply .content {
+    white-space: pre-wrap;
+    margin-bottom: 0.4rem;
+  }
+
+  .post-footer,
+  .reply-footer {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .btn-good {
+    cursor: pointer;
+    color: #388e3c;
+    font-weight: bold;
+    margin-left: 1rem;
+    user-select: none;
+  }
+
+  .btn-good.disabled {
+    color: #388e3c;
+    cursor: pointer;
+  }
+
+  .reply-container {
+    margin-left: 2rem;
+    margin-top: 0.5rem;
+    border-left: 3px solid #4caf50;
+    padding-left: 0.6rem;
+    font-size: 0.9rem;
+    color: #2a4d14;
+  }
+
+  .post-image,
+  .reply-image {
+    max-width: 200px;
+    max-height: 120px;
+    display: block;
+    margin-top: 0.4rem;
+    border-radius: 4px;
+  }
+
+  #filter-section {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  #filter-section > * {
+    flex: 1 1 150px;
+  }
+
+  .delete-btn {
+    margin-left: 1rem;
+    background: #c62828;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+
+  .delete-btn:hover {
+    background: #a72828;
+  }
+</style>
 </head>
 <body>
-  <!-- サイドメニューとオーバーレイ -->
-  <div id="side-menu" class="side-menu" aria-hidden="true" role="menu" aria-label="設定メニュー">
-    <ul>
-      <li><button id="toggle-goal-btn" onclick="toggleGoal()">目標非表示</button></li>
-      <li><button onclick="alert('現在準備中です。')">運営への質問、リクエスト</button></li>
-      <li><button onclick="alert('現在準備中です。')">設定</button></li>
-    </ul>
-  </div>
-  <div id="overlay" class="hidden" onclick="closeSideMenu()" aria-hidden="true"></div>
 
-  <div id="login-screen">
-    <h2>ログインしてください</h2>
-    <input type="text" id="username" placeholder="ユーザー名を入力" aria-label="ユーザー名入力欄" />
-    <button onclick="login()">ログイン</button>
-  </div>
+<header>学力アップ掲示板アプリ</header>
 
-  <div id="main-content" class="hidden" role="main" aria-live="polite">
-    <header>
-      <h1>📘 みんなの勉強掲示板</h1>
-      <button class="settings-button" onclick="toggleSideMenu()" aria-label="設定メニューを開く">⚙️</button>
-    </header>
+<div id="login-container">
+  <h2>ログイン</h2>
+  <input type="text" id="username" placeholder="ユーザー名（新規登録時のみ）" />
+  <input type="email" id="email" placeholder="メールアドレス" autocomplete="username" />
+  <input type="password" id="password" placeholder="パスワード" autocomplete="current-password" />
+  <button id="login-btn">ログイン</button>
+  <button id="signup-btn">新規登録</button>
+  <p id="login-message"></p>
+</div>
 
-    <main>
-      <section id="goal-box" class="goal-box" aria-live="polite" aria-atomic="true">
-        <p id="welcome-message"></p>
-        <p>このwebアプリは学校の学力を上げるため、助け合い、教え合う掲示板です。</p>
-        <p>みんなが共有していただくとありがたいです。</p>
-      </section>
+<div id="app-container" style="display:none;">
+  <div id="gear" title="設定⚙️">⚙️</div>
 
-      <section id="new-post">
-        <h2>問題を投稿する</h2>
-        <input type="text" id="title" placeholder="タイトル" aria-label="投稿タイトル" />
-        <select id="subject" aria-label="教科を選択">
-          <option value="">教科を選択</option>
-          <option value="国語">国語</option>
-          <option value="数学">数学</option>
-          <option value="英語">英語</option>
-          <option value="理科">理科</option>
-          <option value="社会">社会</option>
-        </select>
-        <textarea id="content" rows="4" placeholder="問題の内容や解説など" aria-label="投稿内容"></textarea>
-        <input type="file" id="image" accept="image/*" aria-label="画像を添付" />
-        <button onclick="addPost()">投稿する</button>
-      </section>
+  <div id="welcome-msg"></div>
 
-      <section id="posts" aria-live="polite" aria-atomic="false">
-        <h2>最新の投稿</h2>
-      </section>
-    </main>
+  <div id="goal-text" style="display:none;">
+こんにちは！（ログイン名）さん！
+このwebアプリは学校の学力を上げるため、助け合い、教え合う掲示板です。
+みんなが共有していただくとありがたいです。
   </div>
 
-  <script>
-    let currentUser = "";
-    const posts = [];
-    const goodHistory = new Map();
+  <div id="filter-section">
+    <select id="subject-filter" title="教科で絞る">
+      <option value="">すべての教科</option>
+      <option value="数学">数学</option>
+      <option value="国語">国語</option>
+      <option value="理科">理科</option>
+      <option value="社会">社会</option>
+      <option value="英語">英語</option>
+      <option value="その他">その他</option>
+    </select>
+    <input type="text" id="search-input" placeholder="キーワード検索" title="キーワードで検索" />
+    <button id="search-btn">検索</button>
+    <button id="reset-search-btn">リセット</button>
+    <p id="search-message"></p>
+  </div>
 
-    // ログイン処理
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      if (username) {
-        currentUser = username;
-        document.getElementById("login-screen").classList.add("hidden");
-        document.getElementById("main-content").classList.remove("hidden");
-        document.getElementById("welcome-message").textContent = `こんにちは！${currentUser}さん！`;
-        renderPosts();
-      } else {
-        alert("ユーザー名を入力してください");
+  <div id="post-form">
+    <h3>新しい投稿</h3>
+    <select id="post-subject">
+      <option value="数学">数学</option>
+      <option value="国語">国語</option>
+      <option value="理科">理科</option>
+      <option value="社会">社会</option>
+      <option value="英語">英語</option>
+      <option value="その他">その他</option>
+    </select>
+    <textarea id="post-input" placeholder="質問や予想問題を入力してください"></textarea><br />
+    <input type="file" id="post-image-input" accept="image/*" />
+    <button id="post-btn">投稿する</button>
+    <p id="post-message"></p>
+  </div>
+
+  <div id="posts"></div>
+</div>
+
+<div id="side-panel" aria-hidden="true">
+  <h3>設定メニュー</h3>
+  <button id="toggle-goal-btn">目標非表示</button>
+  <button disabled>運営への質問・リクエスト（未実装）</button>
+  <button disabled>設定（未実装）</button>
+  <button id="logout-btn" style="margin-top:2rem; background:#c62828;">ログアウト</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+<script>
+  // ここをあなたのFirebase設定に書き換えてください
+  const firebaseConfig = {
+  apiKey: "AIzaSyBfstQdl-avHfBWaiPkC0Bzwm_9apWe6Mo",
+  authDomain: "school-board-e2ee2.firebaseapp.com",
+  projectId: "school-board-e2ee2",
+storageBucket: "school-board-e2ee2.appspot.com",
+  messagingSenderId: "257360614407",
+  appId: "1:257360614407:web:7cdae33b9ac7d7a671c6a2"
+};
+
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  // UI要素取得
+  const loginContainer = document.getElementById("login-container");
+  const appContainer = document.getElementById("app-container");
+  const loginMessage = document.getElementById("login-message");
+  const welcomeMsg = document.getElementById("welcome-msg");
+  const postInput = document.getElementById("post-input");
+  const postBtn = document.getElementById("post-btn");
+  const postsDiv = document.getElementById("posts");
+  const gearBtn = document.getElementById("gear");
+  const sidePanel = document.getElementById("side-panel");
+  const toggleGoalBtn = document.getElementById("toggle-goal-btn");
+  const goalText = document.getElementById("goal-text");
+  const logoutBtn = document.getElementById("logout-btn");
+  const postSubject = document.getElementById("post-subject");
+  const postImageInput = document.getElementById("post-image-input");
+  const subjectFilter = document.getElementById("subject-filter");
+  const searchInput = document.getElementById("search-input");
+  const searchBtn = document.getElementById("search-btn");
+  const resetSearchBtn = document.getElementById("reset-search-btn");
+  const searchMessage = document.getElementById("search-message");
+  const postMessage = document.getElementById("post-message");
+
+  let posts = [];
+  let goalVisible = true;
+  let openReplyForms = {};
+
+  // サイドパネル開閉
+  gearBtn.addEventListener("click", () => {
+    if (sidePanel.classList.contains("open")) {
+      sidePanel.classList.remove("open");
+      sidePanel.setAttribute("aria-hidden", "true");
+    } else {
+      sidePanel.classList.add("open");
+      sidePanel.setAttribute("aria-hidden", "false");
+    }
+  });
+
+  // 目標表示切替
+  toggleGoalBtn.addEventListener("click", () => {
+    goalVisible = !goalVisible;
+    goalText.style.display = goalVisible ? "block" : "none";
+    toggleGoalBtn.textContent = goalVisible ? "目標非表示" : "目標表示";
+  });
+
+  // ログアウト
+  logoutBtn.addEventListener("click", () => {
+    auth.signOut();
+  });
+
+  // 投稿表示を描画
+  function renderPosts() {
+    postsDiv.innerHTML = "";
+    let filtered = posts.filter(post => {
+      const matchSubject = subjectFilter.value === "" || post.subject === subjectFilter.value;
+      const keyword = searchInput.value.trim().toLowerCase();
+      const matchKeyword = keyword === "" || post.content.toLowerCase().includes(keyword) || post.userName.toLowerCase().includes(keyword);
+      return matchSubject && matchKeyword;
+    });
+    filtered.sort((a,b) => (b.goodCount || 0) - (a.goodCount || 0) || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    filtered.forEach(post => {
+      postsDiv.appendChild(createPostElement(post));
+    });
+  }
+
+  // HTMLエスケープ
+  function escapeHTML(str) {
+    if (!str) return "";
+    return str.replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+  }
+
+  // 投稿要素作成
+  function createPostElement(post) {
+  const div = document.createElement("div");
+  div.className = "post";
+  div.dataset.id = post.id;
+
+  // グッドボタンのクラス
+  let goodClass = "btn-good";
+  if (post.userGoodIds && post.userGoodIds.includes(auth.currentUser.uid)) goodClass += " active";
+
+  // 削除ボタンは自分の投稿のみ表示
+  const canDelete = post.userId === auth.currentUser.uid;
+
+  // HTML組み立て（エスケープ済み）
+  let html = `
+    <div><strong>教科：</strong>${escapeHTML(post.subject)}</div>
+    <div class="content">${escapeHTML(post.content)}</div>
+  `;
+
+  if (post.imageUrl) {
+    html += `<img src="${escapeHTML(post.imageUrl)}" alt="投稿画像" class="post-image">`;
+  }
+
+  html += `
+    <div class="post-footer">
+      投稿者: ${escapeHTML(post.userName)} | 日時: ${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString() : ""} | 
+      <span class="${goodClass}" title="グッド" style="margin-left:1rem;">👍 <span class="good-count">${post.goodCount || 0}</span></span>
+      <button class="reply-btn" style="margin-left:1rem;">返信</button>
+      ${canDelete ? `<button class="delete-btn" style="margin-left:1rem; background:#c62828; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">削除</button>` : ""}
+    </div>
+    <div class="reply-container"></div>
+  `;
+
+  div.innerHTML = html;
+
+  // グッドボタンのイベント
+  const goodBtn = div.querySelector(".btn-good");
+  if (!goodBtn.classList.contains("disabled")) {
+    goodBtn.addEventListener("click", () => toggleGood(post.id, null));
+  }
+
+  // 返信ボタンのイベント
+  const replyBtn = div.querySelector(".reply-btn");
+  replyBtn.addEventListener("click", () => toggleReplyForm(post.id, div.querySelector(".reply-container")));
+
+  // 削除ボタンのイベント
+  if (canDelete) {
+    const deleteBtn = div.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", async () => {
+      if (!confirm("この投稿と返信を本当に削除しますか？")) return;
+      try {
+        // 返信も削除
+        const repliesSnapshot = await db.collection("replies").where("postId", "==", post.id).get();
+        const batch = db.batch();
+        repliesSnapshot.forEach(doc => batch.delete(doc.ref));
+        batch.delete(db.collection("posts").doc(post.id));
+        await batch.commit();
+        fetchPosts();
+      } catch (e) {
+        alert("削除エラーが発生しました。");
+        console.error(e);
       }
-    }
+    });
+  }
 
-    // 目標表示・非表示トグル
-    function toggleGoal() {
-      const box = document.getElementById("goal-box");
-      const btn = document.getElementById("toggle-goal-btn");
-      if (box.classList.contains("hidden")) {
-        box.classList.remove("hidden");
-        btn.textContent = "目標非表示";
-      } else {
-        box.classList.add("hidden");
-        btn.textContent = "目標表示";
+  // 返信読み込み
+  loadReplies(post.id, div.querySelector(".reply-container"));
+
+  return div;
+}
+
+
+  // 返信要素作成
+  function createReplyElement(reply, postId) {
+  const div = document.createElement("div");
+  div.className = "reply";
+  div.dataset.id = reply.id;
+
+  let goodClass = "btn-good";
+  if (reply.userGoodIds && reply.userGoodIds.includes(auth.currentUser.uid)) goodClass += " disabled";
+
+  // 自分の返信なら削除ボタン表示
+  const canDelete = reply.userId === auth.currentUser.uid;
+
+  let html = `
+  <div class="content">${escapeHTML(reply.content)}</div>
+`;
+if (reply.imageUrl) {
+  html += `<img src="${escapeHTML(reply.imageUrl)}" alt="返信画像" class="reply-image">`;
+}
+
+html += `
+  <div class="reply-footer">
+    投稿者: ${escapeHTML(reply.userName)} | 日時: ${reply.createdAt ? new Date(reply.createdAt.seconds * 1000).toLocaleString() : ""}
+    <span class="${goodClass}" title="グッド" style="margin-left:1rem;">👍 <span class="good-count">${reply.goodCount || 0}</span></span>
+    ${canDelete ? `<button class="delete-btn" style="margin-left:1rem; background:#c62828; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">削除</button>` : ""}
+  </div>
+`;
+
+
+  div.innerHTML = html;
+
+  // グッドボタンイベント
+  const goodBtn = div.querySelector(".btn-good");
+if (goodBtn) {
+  goodBtn.addEventListener("click", async () => {
+    try {
+      const replyDocRef = db.collection("replies").doc(reply.id);
+      await db.runTransaction(async (transaction) => {
+        const doc = await transaction.get(replyDocRef);
+        if (!doc.exists) return;
+
+        const data = doc.data();
+        const goodIds = data.userGoodIds || [];
+        let goodCount = data.goodCount || 0;
+
+        if (goodIds.includes(auth.currentUser.uid)) {
+          // 取り消し
+          goodCount--;
+          transaction.update(replyDocRef, {
+            userGoodIds: goodIds.filter(id => id !== auth.currentUser.uid),
+            goodCount
+          });
+        } else {
+          // 追加
+          goodCount++;
+          transaction.update(replyDocRef, {
+            userGoodIds: [...goodIds, auth.currentUser.uid],
+            goodCount
+          });
+        }
+      });
+      fetchPosts();
+    } catch (e) {
+      console.error("グッド失敗:", e);
+    }
+  });
+}
+
+  // 削除ボタンイベント
+  if (canDelete) {
+    const deleteBtn = div.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", async () => {
+      if (!confirm("この返信を本当に削除しますか？")) return;
+      try {
+        await db.collection("replies").doc(reply.id).delete();
+        fetchPosts();
+      } catch (e) {
+        alert("削除エラーが発生しました。");
+        console.error(e);
       }
-      closeSideMenu();
+    });
+  }
+
+  return div;
+}
+
+
+  // 返信フォームを表示・非表示切替
+  function toggleReplyForm(postId, container) {
+    if (openReplyForms[postId]) {
+      openReplyForms[postId].remove();
+      delete openReplyForms[postId];
+      return;
     }
 
-    // サイドメニュー表示切替
-    function toggleSideMenu() {
-      const menu = document.getElementById("side-menu");
-      const overlay = document.getElementById("overlay");
-      if (menu.classList.contains("show")) {
-        menu.classList.remove("show");
-        overlay.classList.add("hidden");
-        menu.setAttribute("aria-hidden", "true");
-        overlay.setAttribute("aria-hidden", "true");
-      } else {
-        menu.classList.add("show");
-        overlay.classList.remove("hidden");
-        menu.setAttribute("aria-hidden", "false");
-        overlay.setAttribute("aria-hidden", "false");
-      }
-    }
+    const form = document.createElement("div");
+    form.id = `reply-form-${postId}`;
+    form.innerHTML = `
+      <textarea placeholder="返信内容を入力してください" rows="3" style="width:100%;"></textarea>
+      <input type="file" accept="image/*" />
+      <button>返信を送信</button>
+      <p style="color:red;" class="reply-message"></p>
+    `;
 
-    // サイドメニュー閉じる
-    function closeSideMenu() {
-      const menu = document.getElementById("side-menu");
-      const overlay = document.getElementById("overlay");
-      menu.classList.remove("show");
-      overlay.classList.add("hidden");
-      menu.setAttribute("aria-hidden", "true");
-      overlay.setAttribute("aria-hidden", "true");
-    }
+    container.appendChild(form);
+    openReplyForms[postId] = form;
 
-    // 投稿を追加
-    function addPost() {
-      const title = document.getElementById("title").value.trim();
-      const subject = document.getElementById("subject").value;
-      const content = document.getElementById("content").value.trim();
-      const imageInput = document.getElementById("image");
-      const imageFile = imageInput.files[0];
+    const textarea = form.querySelector("textarea");
+    const fileInput = form.querySelector("input[type=file]");
+    const sendBtn = form.querySelector("button");
+    const msgP = form.querySelector(".reply-message");
 
-      if (!title || !subject || !content) {
-        alert("タイトル・教科・内容をすべて入力してください");
+    sendBtn.addEventListener("click", async () => {
+      const text = textarea.value.trim();
+      if (!text) {
+        msgP.textContent = "返信内容を入力してください";
         return;
       }
+      sendBtn.disabled = true;
+      msgP.textContent = "";
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const post = {
-          id: Date.now(),
-          title,
-          subject,
-          content,
-          image: imageFile ? e.target.result : null,
-          good: 0,
-          replies: [],
-        };
-        posts.unshift(post);
-        document.getElementById("title").value = "";
-        document.getElementById("subject").value = "";
-        document.getElementById("content").value = "";
-        document.getElementById("image").value = "";
-        renderPosts();
-      };
-
-      if (imageFile) {
-        reader.readAsDataURL(imageFile);
-      } else {
-        reader.onload({ target: { result: null } });
-      }
-    }
-
-    // 投稿のグッドボタン切替（1人1回＋キャンセル可能）
-    function toggleGood(postId) {
-      const post = posts.find((p) => p.id === postId);
-      const key = `${currentUser}-post-${postId}`;
-
-      if (goodHistory.has(key)) {
-        post.good--;
-        goodHistory.delete(key);
-      } else {
-        post.good++;
-        goodHistory.set(key, true);
-      }
-      renderPosts();
-    }
-
-    // 投稿に返信を追加
-    function replyToPost(postId) {
-      const content = prompt("返信内容を入力してください:");
-      if (content && content.trim()) {
-        const post = posts.find((p) => p.id === postId);
-        post.replies.push({ user: currentUser, content: content.trim(), good: 0 });
-        renderPosts();
-      }
-    }
-
-    // 返信のグッドボタン切替
-    function toggleReplyGood(postId, replyIndex) {
-      const key = `${currentUser}-reply-${postId}-${replyIndex}`;
-      const post = posts.find((p) => p.id === postId);
-      const reply = post.replies[replyIndex];
-
-      if (goodHistory.has(key)) {
-        reply.good--;
-        goodHistory.delete(key);
-      } else {
-        reply.good++;
-        goodHistory.set(key, true);
-      }
-      renderPosts();
-    }
-
-    // 投稿をレンダリング（表示）
-    function renderPosts() {
-      const postsDiv = document.getElementById("posts");
-      postsDiv.innerHTML = '<h2>最新の投稿</h2>';
-      posts.forEach((post) => {
-        const div = document.createElement("div");
-        div.className = "post";
-
-        let repliesHTML = "";
-        if (post.replies.length > 0) {
-          repliesHTML =
-            '<div class="post-replies">' +
-            post.replies
-              .map(
-                (r, i) => `
-            <div class="reply">
-              💬 <strong>${r.user}</strong>: ${escapeHTML(r.content)}
-              <span class="reply-buttons">
-                <button onclick="toggleReplyGood(${post.id}, ${i})">👍 ${r.good}</button>
-              </span>
-            </div>`
-              )
-              .join("") +
-            "</div>";
+      try {
+        let imageUrl = "";
+        if (fileInput.files.length > 0) {
+          const file = fileInput.files[0];
+          const storageRef = storage.ref();
+          const fileRef = storageRef.child(`replies/${postId}/${Date.now()}_${file.name}`);
+          await fileRef.put(file);
+          imageUrl = await fileRef.getDownloadURL();
         }
-        div.innerHTML = `
-          <div class="post-title">${escapeHTML(post.title)}</div>
-          <div class="post-sub">教科: ${escapeHTML(post.subject)}</div>
-          <div class="post-body">${escapeHTML(post.content)}</div>
-          ${post.image ? `<img src="${post.image}" class="post-image" alt="投稿画像">` : ""}
-          <div class="buttons">
-            <button onclick="toggleGood(${post.id})">👍 グッド (${post.good})</button>
-            <button onclick="replyToPost(${post.id})">💬 返信</button>
-          </div>
-          ${repliesHTML}
-        `;
-        postsDiv.appendChild(div);
+        await db.collection("replies").add({
+          postId: postId,
+          userId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
+          content: text,
+          imageUrl: imageUrl,
+          goodCount: 0,
+          userGoodIds: [],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        textarea.value = "";
+        fileInput.value = "";
+        msgP.textContent = "返信を送信しました";
+        form.remove();
+        delete openReplyForms[postId];
+        fetchPosts();
+      } catch(e) {
+        console.error(e);
+        msgP.textContent = "送信エラーが発生しました";
+      }
+      sendBtn.disabled = false;
+    });
+  }
+
+  // 返信読み込み
+  async function loadReplies(postId, container) {
+    container.innerHTML = "返信を読み込み中...";
+    try {
+      const querySnapshot = await db.collection("replies")
+        .where("postId", "==", postId)
+        .orderBy("createdAt", "asc")
+        .get();
+      container.innerHTML = "";
+      querySnapshot.forEach(doc => {
+        const reply = {id: doc.id, ...doc.data()};
+        container.appendChild(createReplyElement(reply, postId));
       });
+    } catch(e) {
+      container.innerHTML = "返信の読み込みに失敗しました";
+      console.error(e);
+    }
+  }
+
+  // グッドボタン切替（投稿or返信）
+  async function toggleGood(postId, replyId) {
+    const uid = auth.currentUser.uid;
+    let docRef;
+
+    if (replyId === null) {
+      docRef = db.collection("posts").doc(postId);
+    } else {
+      docRef = db.collection("replies").doc(replyId);
     }
 
-    // XSS防止のため簡単なエスケープ関数
-    function escapeHTML(text) {
-      if (!text) return "";
-      return text.replace(/[&<>"']/g, function (m) {
-        switch (m) {
-          case "&":
-            return "&amp;";
-          case "<":
-            return "&lt;";
-          case ">":
-            return "&gt;";
-          case '"':
-            return "&quot;";
-          case "'":
-            return "&#39;";
-          default:
-            return m;
+    try {
+      await db.runTransaction(async (transaction) => {
+        const doc = await transaction.get(docRef);
+        if (!doc.exists) throw "ドキュメントが存在しません";
+
+        let docData = doc.data();
+        let userGoodIds = docData.userGoodIds || [];
+        let goodCount = docData.goodCount || 0;
+
+        if (userGoodIds.includes(uid)) {
+          userGoodIds = userGoodIds.filter(id => id !== uid);
+          goodCount--;
+        } else {
+          userGoodIds.push(uid);
+          goodCount++;
         }
+        transaction.update(docRef, {
+          userGoodIds: userGoodIds,
+          goodCount: goodCount
+        });
       });
+      fetchPosts();
+    } catch(e) {
+      console.error("グッド更新エラー:", e);
     }
-  </script>
+  }
+
+  // 投稿送信
+  postBtn.addEventListener("click", async () => {
+  const content = postInput.value.trim();
+  const subject = postSubject.value;
+  const file = postImageInput.files[0];
+  postMessage.textContent = "";
+  if (!content) {
+    postMessage.textContent = "内容を入力してください";
+    return;
+  }
+  postBtn.disabled = true;
+  postMessage.style.color = "green";
+  postMessage.textContent = "投稿を処理中です…しばらくお待ちください";
+
+  try {
+    let imageUrl = "";
+    if (file) {
+      const storageRef = storage.ref();
+      const fileRef = storageRef.child(`posts/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+      await fileRef.put(file);
+      imageUrl = await fileRef.getDownloadURL();
+    }
+
+    await db.collection("posts").add({
+      userId: auth.currentUser.uid,
+      userName: auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
+      subject: subject,
+      content: content,
+      imageUrl: "",//いったん画像なし
+      goodCount: 0,
+      userGoodIds: [],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    postInput.value = "";
+    postImageInput.value = "";
+    postMessage.textContent = "投稿されました！";
+  } catch(e) {
+    console.error(e);
+    postMessage.style.color = "red";
+    postMessage.textContent = "投稿エラーが発生しました";
+  }
+  postBtn.disabled = false;
+  fetchPosts();
+});
+
+
+  // 投稿取得
+  async function fetchPosts() {
+    try {
+      const snapshot = await db.collection("posts").get();
+      posts = [];
+      snapshot.forEach(doc => {
+        posts.push({id: doc.id, ...doc.data()});
+      });
+      renderPosts();
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
+  // 検索とフィルターのイベント
+  searchBtn.addEventListener("click", () => {
+    searchMessage.textContent = "";
+    renderPosts();
+  });
+  resetSearchBtn.addEventListener("click", () => {
+    subjectFilter.value = "";
+    searchInput.value = "";
+    searchMessage.textContent = "";
+    renderPosts();
+  });
+  subjectFilter.addEventListener("change", () => {
+    renderPosts();
+  });
+
+  // 認証状態監視
+  auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    // displayName がなければユーザーネームを入力させる
+    if (!user.displayName) {
+      const userName = prompt("こんにちは！ユーザーネームを入力してください。");
+      if (userName) {
+        await user.updateProfile({ displayName: userName });
+        // 再読み込みしなくても表示更新
+        welcomeMsg.textContent = `こんにちは！${userName}さん！`;
+        goalText.innerHTML = `こんにちは！${userName}さん！<br>このwebアプリは学校の学力を上げるため、助け合い、教え合う掲示板です。みんなが共有していただくとありがたいです。`;
+      }
+    } else {
+      welcomeMsg.textContent = `こんにちは！${user.displayName}さん！`;
+      goalText.innerHTML = `こんにちは！${user.displayName}さん！<br>このwebアプリは学校の学力を上げるため、助け合い、教え合う掲示板です。みんなが共有していただくとありがたいです。`;
+    }
+    goalText.style.display = goalVisible ? "block" : "none";
+    toggleGoalBtn.textContent = goalVisible ? "目標非表示" : "目標表示";
+    loginContainer.style.display = "none";
+    appContainer.style.display = "block";
+    fetchPosts();
+  } else {
+    loginContainer.style.display = "block";
+    appContainer.style.display = "none";
+  }
+});
+
+
+  // ログイン・新規登録UI（簡易版）
+  const loginBtn = document.getElementById("login-btn");
+  const signupBtn = document.getElementById("signup-btn");
+
+  loginBtn.addEventListener("click", async () => {
+    loginMessage.textContent = "";
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    if (!email || !password) {
+      loginMessage.textContent = "メールとパスワードを入力してください";
+      return;
+    }
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+    } catch(e) {
+      loginMessage.textContent = "ログイン失敗：" + e.message;
+    }
+  });
+
+  signupBtn.addEventListener("click", async () => {
+  loginMessage.textContent = "";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+
+  if (!email || !password || !username) {
+    loginMessage.textContent = "メール、パスワード、ユーザー名をすべて入力してください";
+    return;
+  }
+
+  try {
+    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+    await userCredential.user.updateProfile({
+      displayName: username
+    });
+    alert("登録完了！ログインしてください");
+  } catch(e) {
+    loginMessage.textContent = "登録失敗：" + e.message;
+  }
+});
+
+</script>
 </body>
 </html>
