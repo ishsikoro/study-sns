@@ -4,9 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>学力アップ掲示板アプリ（全部入り）</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  /* ベース設定 */
   body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background: #f0fff4;
     color: #2a4d14;
     margin: 0;
@@ -25,14 +27,44 @@
     z-index: 100;
   }
 
+  /* 通常（PC用）スタイル */
+    #icon-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+    }
+
+    /* ▼ スマホ対応（画面幅が600px以下のとき） */
+    @media (max-width: 600px) {
+      #icon-preview {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
   #login-container,
   #app-container {
     max-width: 700px;
     margin: 1rem auto;
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 1rem 1.5rem;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  #login-container:hover,
+  #app-container:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* 入力・ボタン共通設定 */
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 1rem;
+    box-sizing: border-box;
   }
 
   input,
@@ -40,11 +72,13 @@
   textarea {
     width: 100%;
     padding: 8px;
-    margin: 6px 0 12px 0;
+    margin: 6px 0 12px;
     border: 1px solid #4caf50;
     border-radius: 4px;
-    font-size: 1rem;
-    box-sizing: border-box;
+  }
+
+  textarea {
+    resize: vertical;
   }
 
   button {
@@ -53,9 +87,9 @@
     border: none;
     padding: 10px 1.8rem;
     margin: 6px 6px 6px 0;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1rem;
+    transition: background 0.3s ease;
   }
 
   button:hover:not(:disabled) {
@@ -67,6 +101,7 @@
     cursor: not-allowed;
   }
 
+  /* メッセージ・フォーム */
   #login-message,
   #post-message,
   #reply-message,
@@ -75,11 +110,116 @@
     margin-top: 0.5rem;
   }
 
-  #welcome-msg {
-    margin-bottom: 0.5rem;
-    font-weight: bold;
+  #goal-text {
+    background: #d0f0c0;
+    border-radius: 4px;
+    padding: 0.7rem;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+    font-size: 0.9rem;
   }
 
+  /* 投稿・返信・削除 */
+  .post, .reply {
+    border-bottom: 1px solid #ddd;
+    padding: 0.8rem 0;
+    animation: fadeInUp 0.5s ease forwards;
+  }
+
+  .post .content,
+  .reply .content {
+    white-space: pre-wrap;
+    margin-bottom: 0.4rem;
+  }
+
+  .post-footer,
+  .reply-footer {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  .delete-btn {
+    margin-left: 1rem;
+    background: #c62828;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.3s ease;
+  }
+
+  .delete-btn:hover {
+    background: #a72828;
+  }
+
+  .btn-good {
+    cursor: pointer;
+    color: #388e3c;
+    font-weight: bold;
+    margin-left: 1rem;
+    user-select: none;
+  }
+
+  .btn-good.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+  button:active,
+  .btn-good:active,
+  .delete-btn:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  /* カテゴリバッジ */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+    color: white;
+  }
+  .badge.math { background: #2196f3; }
+  .badge.english { background: #ff9800; }
+  .badge.science { background: #673ab7; }
+  .badge.history { background: #795548; }
+
+  /* 画像・返信枠 */
+  .post-image,
+  .reply-image {
+    max-width: 200px;
+    max-height: 120px;
+    display: block;
+    margin-top: 0.4rem;
+    border-radius: 4px;
+  }
+
+  .reply-container {
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+    border-left: 3px solid #4caf50;
+    padding-left: 0.6rem;
+    font-size: 0.9rem;
+    color: #2a4d14;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* サイドパネル */
   #gear {
     position: fixed;
     top: 16px;
@@ -126,74 +266,7 @@
     background: #c62828 !important;
   }
 
-  #goal-text {
-    background: #d0f0c0;
-    border-radius: 4px;
-    padding: 0.7rem;
-    margin-bottom: 1rem;
-    white-space: pre-wrap;
-    font-size: 0.9rem;
-  }
-
-  #post-form,
-  #reply-form,
-  #search-form {
-    margin-bottom: 1rem;
-  }
-
-  textarea {
-    resize: vertical;
-  }
-
-  .post,
-  .reply {
-    border-bottom: 1px solid #ddd;
-    padding: 0.8rem 0;
-  }
-
-  .post .content,
-  .reply .content {
-    white-space: pre-wrap;
-    margin-bottom: 0.4rem;
-  }
-
-  .post-footer,
-  .reply-footer {
-    font-size: 0.85rem;
-    color: #666;
-  }
-
-  .btn-good {
-    cursor: pointer;
-    color: #388e3c;
-    font-weight: bold;
-    margin-left: 1rem;
-    user-select: none;
-  }
-
-  .btn-good.disabled {
-    color: #388e3c;
-    cursor: pointer;
-  }
-
-  .reply-container {
-    margin-left: 2rem;
-    margin-top: 0.5rem;
-    border-left: 3px solid #4caf50;
-    padding-left: 0.6rem;
-    font-size: 0.9rem;
-    color: #2a4d14;
-  }
-
-  .post-image,
-  .reply-image {
-    max-width: 200px;
-    max-height: 120px;
-    display: block;
-    margin-top: 0.4rem;
-    border-radius: 4px;
-  }
-
+  /* フィルター */
   #filter-section {
     display: flex;
     gap: 1rem;
@@ -205,23 +278,119 @@
     flex: 1 1 150px;
   }
 
-  .delete-btn {
-    margin-left: 1rem;
-    background: #c62828;
-    color: #fff;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
+  /* ダークモード */
+  body.dark-mode {
+    background: #121212;
+    color: #f0f0f0;
   }
 
-  .delete-btn:hover {
-    background: #a72828;
+  body.dark-mode header {
+    background: #1e1e1e;
+    color: #ffffff;
   }
+
+  body.dark-mode #login-container,
+  body.dark-mode #app-container {
+    background: #1e1e1e;
+    color: #f0f0f0;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+  }
+
+  body.dark-mode input,
+  body.dark-mode select,
+  body.dark-mode textarea {
+    background: #222;
+    color: #fff;
+    border: 1px solid #4caf50;
+  }
+
+  body.dark-mode button {
+    background: #388e3c;
+  }
+
+  body.dark-mode #goal-text {
+    background: #2e4d2c;
+    color: #f0f0f0;
+  }
+
+  body.dark-mode .reply-container {
+    border-left: 3px solid #81c784;
+  }
+
+  body.dark-mode .post,
+  body.dark-mode .reply {
+    border-bottom: 1px solid #444;
+  }
+
+  body.dark-mode #side-panel {
+    background: #1b1b1b;
+  }
+
+  /* 投稿者名に色とアイコン */
+  .post-user-name {
+    font-weight: bold;
+    padding-left: 24px;
+    position: relative;
+    display: inline-block;
+    cursor: default;
+  }
+
+  .post-user-name::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .post-user-name.self {
+    color: #2e7d32;
+  }
+
+  .post-user-name.self::before {
+    background-color: #1b5e20;
+  }
+
+  .reply-count {
+      font-size: 0.85rem;
+      color: #555;
+      margin-left: 1rem;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+
+    /* ランキングカードのコンテナを 3 列固定のグリッドに */
+#ranking-cards {
+  display: grid;
+  /* 3 列を必ず均等幅に。minmax(0,1fr) がカギ */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+
+/* 個々のカードを少し小さめにし、高さ自動でそろえる */
+.ranking-card {
+  background: #e8f5e9;
+  border: 2px solid #4caf50;
+  border-radius: 10px;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+    
 </style>
 </head>
 <body>
+
 
 <header>学力アップ掲示板アプリ</header>
 
@@ -235,10 +404,69 @@
   <p id="login-message"></p>
 </div>
 
+<div id="profile-setup" style="display:none; padding:1rem; border:2px dashed #ccc; margin-top:1rem;">
+  <h3>プロフィール設定</h3>
+  <label>学年:
+    <select id="profile-grade">
+      <option value="">選択してください</option>
+      <option value="中1">中1</option>
+      <option value="中2">中2</option>
+      <option value="中3">中3</option>
+    </select>
+  </label>
+  <br><br>
+  <label for="profile-icon-input">プロフィール画像：</label>
+  <input type="file" id="profile-icon-input">
+
+  <script>
+  document.getElementById("profile-icon-input").addEventListener("change", () => {
+    const file = document.getElementById("profile-icon-input").files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        let imgPreview = document.getElementById("icon-preview");
+        if (!imgPreview) {
+          imgPreview = document.createElement("img");
+          imgPreview.id = "icon-preview";
+          imgPreview.style.borderRadius = "50%";
+          document.getElementById("profile-icon-input").parentNode.appendChild(imgPreview);
+        }
+        imgPreview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+</script>
+
+
+
+  <br><br>
+  <button id="save-profile-btn">プロフィールを保存</button>
+
+  <script>
+  // 「プロフィールを保存」ボタン処理例
+  
+</script>
+
+  <p id="profile-setup-message" style="color:red;"></p>
+</div>
+
+
 <div id="app-container" style="display:none;">
   <div id="gear" title="設定⚙️">⚙️</div>
 
   <div id="welcome-msg"></div>
+
+  <!-- ここにランキングとおすすめ問題セクションを追加 -->
+  <div id="ranking-section" style="margin-bottom: 1rem;">
+    <h3>ランキング（グッド数順）</h3>
+    <div id="ranking-cards" style="display: flex; gap: 1rem; flex-wrap: wrap;"></div>
+  </div>
+
+  <div id="recommended-section" style="margin-bottom: 1rem;">
+    <h3>おすすめ問題</h3>
+    <div id="recommended-posts"></div>
+  </div>
 
   <div id="goal-text" style="display:none;">
 こんにちは！（ログイン名）さん！
@@ -262,6 +490,13 @@
     <p id="search-message"></p>
   </div>
 
+  <select id="sort-select" title="並び順でソート">
+  <option value="goodDesc">グッド数順（多い順）</option>
+  <option value="newest">新しい順</option>
+  <option value="oldest">古い順</option>
+</select>
+
+
   <div id="post-form">
     <h3>新しい投稿</h3>
     <select id="post-subject">
@@ -284,17 +519,19 @@
 <div id="side-panel" aria-hidden="true">
   <h3>設定メニュー</h3>
   <button id="toggle-goal-btn">目標非表示</button>
+  <button id="edit-profile-btn">プロフィール編集</button>
   <button disabled>運営への質問・リクエスト（未実装）</button>
   <button disabled>設定（未実装）</button>
+  <button id="toggle-darkmode-btn">ダークモードON</button>
   <button id="logout-btn" style="margin-top:2rem; background:#c62828;">ログアウト</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-<script>
+  <script>
   // ここをあなたのFirebase設定に書き換えてください
   const firebaseConfig = {
   apiKey: "AIzaSyBfstQdl-avHfBWaiPkC0Bzwm_9apWe6Mo",
@@ -312,6 +549,11 @@ storageBucket: "school-board-e2ee2.appspot.com",
   const storage = firebase.storage();
 
   // UI要素取得
+  const profileSetupDiv = document.getElementById("profile-setup");
+  const profileGrade = document.getElementById("profile-grade");
+  const profileIconInput = document.getElementById("profile-icon-input");
+  const saveProfileBtn = document.getElementById("save-profile-btn");
+  const profileMsg = document.getElementById("profile-setup-message");
   const loginContainer = document.getElementById("login-container");
   const appContainer = document.getElementById("app-container");
   const loginMessage = document.getElementById("login-message");
@@ -333,9 +575,52 @@ storageBucket: "school-board-e2ee2.appspot.com",
   const searchMessage = document.getElementById("search-message");
   const postMessage = document.getElementById("post-message");
 
+  // ランキング・おすすめ表示用要素
+  const recommendedPostsDiv = document.getElementById("recommended-posts");
+  const rankingCardsDiv = document.getElementById("ranking-cards");
+
+  function renderRanking() {
+  rankingCardsDiv.innerHTML = "";
+  const sorted = [...posts]
+    .sort((a,b) => (b.goodCount || 0) - (a.goodCount || 0))
+    .slice(0, 3);
+
+  sorted.forEach(post => {
+    const card = document.createElement("div");
+    card.className = "ranking-card";   // ← class を付与
+    card.innerHTML = `
+      <div style="font-weight:bold;margin-bottom:0.4rem;">${escapeHTML(post.subject)}</div>
+      <div style="flex:1;">${escapeHTML(post.content).slice(0, 50)}...</div>
+      <div style="margin-top:0.4rem;font-size:0.8rem;">👍 ${post.goodCount || 0} グッド</div>
+    `;
+    rankingCardsDiv.appendChild(card);
+  });
+}
+
+  function renderRecommendedPosts() {
+  recommendedPostsDiv.innerHTML = ""; // ← h3を含めない
+  const recommended = posts.filter(p => (p.goodCount || 0) >= 3).slice(0, 3);
+  if (recommended.length === 0) {
+    recommendedPostsDiv.innerHTML += "<p>おすすめ投稿はまだありません。</p>";
+    return;
+  }
+  recommended.forEach(post => {
+    const div = document.createElement("div");
+    div.style = "padding:0.8rem;margin-bottom:0.5rem;background:#f1f8e9;border-radius:6px;";
+    div.innerHTML = `
+      <strong>${escapeHTML(post.subject)}</strong>: ${escapeHTML(post.content).slice(0, 80)}...<br>
+      👍 ${post.goodCount || 0} グッド
+    `;
+    recommendedPostsDiv.appendChild(div);
+  });
+}
+
+  
+
   let posts = [];
   let goalVisible = true;
   let openReplyForms = {};
+  let darkMode = false;
 
   // サイドパネル開閉
   gearBtn.addEventListener("click", () => {
@@ -355,25 +640,59 @@ storageBucket: "school-board-e2ee2.appspot.com",
     toggleGoalBtn.textContent = goalVisible ? "目標非表示" : "目標表示";
   });
 
+  //ダークモード切替
+  const toggleDarkBtn = document.getElementById("toggle-darkmode-btn");
+  darkMode = false
+
+  toggleDarkBtn.addEventListener("click", () => {
+  darkMode = !darkMode;
+  document.body.classList.toggle("dark-mode", darkMode);
+  toggleDarkBtn.textContent = darkMode ? "ダークモードOFF" : "ダークモードON";
+});
+
+
   // ログアウト
   logoutBtn.addEventListener("click", () => {
     auth.signOut();
   });
 
+  const sortSelect = document.getElementById("sort-select");
+
+  sortSelect.addEventListener("change", () => {
+   renderPosts();
+  });
+
+
   // 投稿表示を描画
   function renderPosts() {
-    postsDiv.innerHTML = "";
-    let filtered = posts.filter(post => {
-      const matchSubject = subjectFilter.value === "" || post.subject === subjectFilter.value;
-      const keyword = searchInput.value.trim().toLowerCase();
-      const matchKeyword = keyword === "" || post.content.toLowerCase().includes(keyword) || post.userName.toLowerCase().includes(keyword);
-      return matchSubject && matchKeyword;
-    });
-    filtered.sort((a,b) => (b.goodCount || 0) - (a.goodCount || 0) || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-    filtered.forEach(post => {
-      postsDiv.appendChild(createPostElement(post));
-    });
-  }
+  postsDiv.innerHTML = "";
+  let filtered = posts.filter(post => {
+    const matchSubject = subjectFilter.value === "" || post.subject === subjectFilter.value;
+    const keyword = searchInput.value.trim().toLowerCase();
+    const matchKeyword = keyword === "" || post.content.toLowerCase().includes(keyword) || post.userName.toLowerCase().includes(keyword);
+    return matchSubject && matchKeyword;
+  });
+
+  // 選択されたソート基準を取得
+  const sortType = sortSelect.value;
+
+  // ソート
+  filtered.sort((a, b) => {
+    if (sortType === "goodDesc") {
+      return (b.goodCount || 0) - (a.goodCount || 0) || (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    } else if (sortType === "newest") {
+      return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+    } else if (sortType === "oldest") {
+      return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+    }
+    return 0;
+  });
+
+  filtered.forEach(post => {
+    postsDiv.appendChild(createPostElement(post));
+  });
+}
+
 
   // HTMLエスケープ
   function escapeHTML(str) {
@@ -396,11 +715,20 @@ storageBucket: "school-board-e2ee2.appspot.com",
   // 削除ボタンは自分の投稿のみ表示
   const canDelete = post.userId === auth.currentUser.uid;
 
-  // HTML組み立て（エスケープ済み）
   let html = `
-    <div><strong>教科：</strong>${escapeHTML(post.subject)}</div>
-    <div class="content">${escapeHTML(post.content)}</div>
-  `;
+  <div class="post-header" style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+    <img src="${escapeHTML(post.userIconUrl || 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png')}" 
+         alt="アイコン" 
+         style="width:36px;height:36px;border-radius:50%;">
+    <div>
+      <div><strong>${escapeHTML(post.userName)}</strong>（${escapeHTML(post.userGrade || '未設定')}）</div>
+      <div style="font-size:0.8rem;color:#555;">${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString() : ""}</div>
+    </div>
+  </div>
+  <div><strong>教科：</strong>${escapeHTML(post.subject)}</div>
+  <div class="content">${escapeHTML(post.content)}</div>
+`;
+
 
   if (post.imageUrl) {
     html += `<img src="${escapeHTML(post.imageUrl)}" alt="投稿画像" class="post-image">`;
@@ -408,12 +736,13 @@ storageBucket: "school-board-e2ee2.appspot.com",
 
   html += `
     <div class="post-footer">
-      投稿者: ${escapeHTML(post.userName)} | 日時: ${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString() : ""} | 
+      投稿者: ${escapeHTML(post.userName)} | 日時: ${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString() : ""} |
       <span class="${goodClass}" title="グッド" style="margin-left:1rem;">👍 <span class="good-count">${post.goodCount || 0}</span></span>
       <button class="reply-btn" style="margin-left:1rem;">返信</button>
       ${canDelete ? `<button class="delete-btn" style="margin-left:1rem; background:#c62828; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">削除</button>` : ""}
+      <span class="reply-count" id="reply-count-${post.id}" style="margin-left:1rem; cursor:pointer; color: blue; text-decoration: underline;">💬 ...件の返信</span>
     </div>
-    <div class="reply-container"></div>
+    <div class="reply-container" style="display:none;"></div>
   `;
 
   div.innerHTML = html;
@@ -426,7 +755,8 @@ storageBucket: "school-board-e2ee2.appspot.com",
 
   // 返信ボタンのイベント
   const replyBtn = div.querySelector(".reply-btn");
-  replyBtn.addEventListener("click", () => toggleReplyForm(post.id, div.querySelector(".reply-container")));
+  const replyContainer = div.querySelector(".reply-container");
+  replyBtn.addEventListener("click", () => toggleReplyForm(post.id, replyContainer));
 
   // 削除ボタンのイベント
   if (canDelete) {
@@ -434,7 +764,6 @@ storageBucket: "school-board-e2ee2.appspot.com",
     deleteBtn.addEventListener("click", async () => {
       if (!confirm("この投稿と返信を本当に削除しますか？")) return;
       try {
-        // 返信も削除
         const repliesSnapshot = await db.collection("replies").where("postId", "==", post.id).get();
         const batch = db.batch();
         repliesSnapshot.forEach(doc => batch.delete(doc.ref));
@@ -448,11 +777,32 @@ storageBucket: "school-board-e2ee2.appspot.com",
     });
   }
 
-  // 返信読み込み
-  loadReplies(post.id, div.querySelector(".reply-container"));
+  // 返信数を取得して表示
+  db.collection("replies").where("postId", "==", post.id).get().then(snapshot => {
+    const count = snapshot.size;
+    const countSpan = div.querySelector(`#reply-count-${post.id}`);
+    if (countSpan) countSpan.textContent = `💬 ${count}件の返信`;
+  });
+
+  // 返信数クリックで返信表示切替
+  const replyCountSpan = div.querySelector(`#reply-count-${post.id}`);
+  replyCountSpan.addEventListener("click", () => {
+    if (replyContainer.style.display === "none") {
+      replyContainer.style.display = "block";
+      // 返信を読み込み（開くたびに最新化したい場合）
+      loadReplies(post.id, replyContainer);
+    } else {
+      replyContainer.style.display = "none";
+    }
+  });
+
+  // 返信読み込み（初期は非表示なので読み込みはクリック後に）
+  // loadReplies(post.id, replyContainer);
 
   return div;
 }
+
+
 
 
   // 返信要素作成
@@ -543,70 +893,76 @@ if (goodBtn) {
 
   // 返信フォームを表示・非表示切替
   function toggleReplyForm(postId, container) {
-    if (openReplyForms[postId]) {
-      openReplyForms[postId].remove();
-      delete openReplyForms[postId];
+  if (openReplyForms[postId]) {
+    openReplyForms[postId].remove();
+    delete openReplyForms[postId];
+    return;
+  }
+
+  // 返信フォームを form 要素で作成（submitイベント対応）
+  const form = document.createElement("form");
+  form.id = `reply-form-${postId}`;
+  form.innerHTML = `
+    <textarea name="reply-text" placeholder="返信内容を入力してください" rows="3" style="width:100%;"></textarea>
+    <input type="file" name="reply-image" accept="image/*" />
+    <button type="submit">返信を送信</button>
+    <p style="color:red;" class="reply-message"></p>
+  `;
+
+  container.appendChild(form);
+  openReplyForms[postId] = form;
+
+  const textarea = form.querySelector("textarea[name=reply-text]");
+  const fileInput = form.querySelector("input[name=reply-image]");
+  const msgP = form.querySelector(".reply-message");
+  const sendBtn = form.querySelector("button[type=submit]");
+
+  // submit イベントに変更
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); // ページリロード防止
+    const text = textarea.value.trim();
+    if (!text) {
+      msgP.textContent = "返信内容を入力してください";
       return;
     }
+    sendBtn.disabled = true;
+    msgP.textContent = "";
 
-    const form = document.createElement("div");
-    form.id = `reply-form-${postId}`;
-    form.innerHTML = `
-      <textarea placeholder="返信内容を入力してください" rows="3" style="width:100%;"></textarea>
-      <input type="file" accept="image/*" />
-      <button>返信を送信</button>
-      <p style="color:red;" class="reply-message"></p>
-    `;
-
-    container.appendChild(form);
-    openReplyForms[postId] = form;
-
-    const textarea = form.querySelector("textarea");
-    const fileInput = form.querySelector("input[type=file]");
-    const sendBtn = form.querySelector("button");
-    const msgP = form.querySelector(".reply-message");
-
-    sendBtn.addEventListener("click", async () => {
-      const text = textarea.value.trim();
-      if (!text) {
-        msgP.textContent = "返信内容を入力してください";
-        return;
+    try {
+      let imageUrl = "";
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const storageRef = storage.ref();
+        const fileRef = storageRef.child(`replies/${postId}/${Date.now()}_${file.name}`);
+        await fileRef.put(file);
+        imageUrl = await fileRef.getDownloadURL();
       }
-      sendBtn.disabled = true;
-      msgP.textContent = "";
+      await db.collection("replies").add({
+        postId: postId,
+        userId: auth.currentUser.uid,
+        userName: auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
+        content: text,
+        imageUrl: imageUrl,
+        goodCount: 0,
+        userGoodIds: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      textarea.value = "";
+      fileInput.value = "";
+      msgP.style.color = "green";
+      msgP.textContent = "返信を送信しました";
+      form.remove();
+      delete openReplyForms[postId];
+      fetchPosts();
+    } catch (e) {
+      console.error(e);
+      msgP.style.color = "red";
+      msgP.textContent = "送信エラーが発生しました";
+    }
+    sendBtn.disabled = false;
+  });
+}
 
-      try {
-        let imageUrl = "";
-        if (fileInput.files.length > 0) {
-          const file = fileInput.files[0];
-          const storageRef = storage.ref();
-          const fileRef = storageRef.child(`replies/${postId}/${Date.now()}_${file.name}`);
-          await fileRef.put(file);
-          imageUrl = await fileRef.getDownloadURL();
-        }
-        await db.collection("replies").add({
-          postId: postId,
-          userId: auth.currentUser.uid,
-          userName: auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
-          content: text,
-          imageUrl: imageUrl,
-          goodCount: 0,
-          userGoodIds: [],
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        textarea.value = "";
-        fileInput.value = "";
-        msgP.textContent = "返信を送信しました";
-        form.remove();
-        delete openReplyForms[postId];
-        fetchPosts();
-      } catch(e) {
-        console.error(e);
-        msgP.textContent = "送信エラーが発生しました";
-      }
-      sendBtn.disabled = false;
-    });
-  }
 
   // 返信読み込み
   async function loadReplies(postId, container) {
@@ -671,10 +1027,12 @@ if (goodBtn) {
   const subject = postSubject.value;
   const file = postImageInput.files[0];
   postMessage.textContent = "";
+
   if (!content) {
     postMessage.textContent = "内容を入力してください";
     return;
   }
+
   postBtn.disabled = true;
   postMessage.style.color = "green";
   postMessage.textContent = "投稿を処理中です…しばらくお待ちください";
@@ -688,42 +1046,54 @@ if (goodBtn) {
       imageUrl = await fileRef.getDownloadURL();
     }
 
+    // ユーザーのプロフィール情報を取得
+    const userDoc = await db.collection("users").doc(auth.currentUser.uid).get();
+    const userData = userDoc.data() || {};
+
     await db.collection("posts").add({
       userId: auth.currentUser.uid,
       userName: auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
-      subject: subject,
-      content: content,
-      imageUrl: "",//いったん画像なし
+      subject,
+      content,
+      imageUrl,
       goodCount: 0,
       userGoodIds: [],
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      userGrade: userData.grade || "未設定",
+      userIconUrl: userData.iconUrl || "" // デフォルトの人影でもOK
     });
+
     postInput.value = "";
     postImageInput.value = "";
     postMessage.textContent = "投稿されました！";
-  } catch(e) {
+    fetchPosts();
+
+  } catch (e) {
     console.error(e);
     postMessage.style.color = "red";
     postMessage.textContent = "投稿エラーが発生しました";
   }
+
   postBtn.disabled = false;
-  fetchPosts();
 });
 
 
-  // 投稿取得
-  async function fetchPosts() {
-    try {
-      const snapshot = await db.collection("posts").get();
-      posts = [];
-      snapshot.forEach(doc => {
-        posts.push({id: doc.id, ...doc.data()});
-      });
-      renderPosts();
-    } catch(e) {
-      console.error(e);
-    }
-  }
+
+  // 投稿取得と描画
+async function fetchPosts() {
+try {
+const snapshot = await db.collection("posts").get();
+posts = [];
+snapshot.forEach(doc => {
+posts.push({ id: doc.id, ...doc.data() });
+});
+renderPosts(); // 投稿リストを表示
+renderRanking(); // ランキング表示
+renderRecommendedPosts(); // おすすめ投稿表示
+} catch(e) {
+console.error(e);
+}
+}
 
   // 検索とフィルターのイベント
   searchBtn.addEventListener("click", () => {
@@ -739,6 +1109,25 @@ if (goodBtn) {
   subjectFilter.addEventListener("change", () => {
     renderPosts();
   });
+
+  const editProfileBtn = document.getElementById("edit-profile-btn");
+
+editProfileBtn.addEventListener("click", async () => {
+  profileSetupDiv.style.display = "block";
+  appContainer.style.display = "none";
+
+  try {
+    const userDoc = await db.collection("users").doc(auth.currentUser.uid).get();
+    if (userDoc.exists) {
+      const data = userDoc.data();
+      profileGrade.value = data.grade || "";
+      // 画像のプレビュー更新などもここで可能（必要なら追加）
+    }
+  } catch (e) {
+    console.error("プロフィール取得失敗:", e);
+  }
+});
+
 
   // 認証状態監視
   auth.onAuthStateChanged(async (user) => {
@@ -760,7 +1149,17 @@ if (goodBtn) {
     toggleGoalBtn.textContent = goalVisible ? "目標非表示" : "目標表示";
     loginContainer.style.display = "none";
     appContainer.style.display = "block";
-    fetchPosts();
+
+const userDoc = await db.collection("users").doc(user.uid).get();
+if (!userDoc.exists || !userDoc.data().grade || !userDoc.data().iconUrl) {
+  appContainer.style.display = "none";
+  profileSetupDiv.style.display = "block";
+} else {
+  profileSetupDiv.style.display = "none";
+  appContainer.style.display = "block";
+  fetchPosts();
+}
+
   } else {
     loginContainer.style.display = "block";
     appContainer.style.display = "none";
@@ -800,14 +1199,62 @@ if (goodBtn) {
 
   try {
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    await userCredential.user.updateProfile({
-      displayName: username
+    await userCredential.user.updateProfile({ displayName: username });
+
+    // Firestore に初期プロフィール情報を保存（grade/iconUrlは後で設定）
+    await db.collection("users").doc(userCredential.user.uid).set({
+      grade: "",         // 初期は空、あとで設定
+      iconUrl: ""        // 初期は空、あとで設定
     });
-    alert("登録完了！ログインしてください");
-  } catch(e) {
-    loginMessage.textContent = "登録失敗：" + e.message;
+
+    loginMessage.style.color = "green";
+    loginMessage.textContent = "新規登録に成功しました。ログイン中です...";
+
+  } catch (e) {
+    console.error(e);
+    loginMessage.style.color = "red";
+    loginMessage.textContent = "登録エラー：" + e.message;
   }
 });
+
+saveProfileBtn.addEventListener("click", async () => {
+  const grade = profileGrade.value;
+  const file = profileIconInput.files[0];
+
+  if (!grade) {
+    profileMsg.textContent = "学年を選択してください";
+    return;
+  }
+
+  saveProfileBtn.disabled = true;
+  profileMsg.textContent = "";
+
+  let iconUrl = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png";
+
+  try {
+    if (file) {
+      const fileRef = storage.ref().child(`icons/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+      await fileRef.put(file);
+      iconUrl = await fileRef.getDownloadURL();
+    }
+
+    // update を set に変更、マージモードで上書きしない
+    await db.collection("users").doc(auth.currentUser.uid).set({
+      grade,
+      iconUrl
+    }, { merge: true });
+
+    profileSetupDiv.style.display = "none";
+    appContainer.style.display = "block";
+    fetchPosts();
+  } catch (e) {
+    profileMsg.textContent = "保存エラーが発生しました";
+    console.error(e);
+  }
+
+  saveProfileBtn.disabled = false;
+});
+
 
 </script>
 </body>
